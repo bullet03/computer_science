@@ -131,6 +131,33 @@ RTK (Redux tool kit)
   - HOS / Memoized selector / Output Selector (исп. на сайте reselect)
   - Selector низшего порядка / Dependencies / Input Selector 
   - Result Func / Output Selector (исп. на сайте redux)
-  
+- argsMemoize
+- memoize
+- LRU (least recently used) распределение задач в структуре данных в зависимости от того времени добавления. Есть линиия времени, есть линия списка. Самая свежие данные встают в конец списка, а самые старые данные остаются вначале списка. Если размер списка превышен при добавлении новых данных свежие данные вставляются в конец, а самые старые выкидываются
+- LRU м. релизовываться разными техническими прёмами (array, list, map, ...). Самый легкий способ - Map, т.к. он сохарняет порядок вставки сразу же
+- важно понимать и уметь написать функцию memoize. Реализация:
+```javascript
+function checkForEquality(arg1, arg2) {
+  return JSON.stringify(arg1) === JSON.stringify(arg2);
+}
+
+function memoize(targetFunc) {
+  let memoArgs = [];
+  let memoResult = null;
+
+  function decoratedFunc(...args) {
+    if (checkForEquality(args, memoArgs)) {
+      return memoResult;
+    } else {
+      memoArgs = args;
+      memoResult = targetFunc(...memoArgs);
+      return memoResult;
+    }
+  }
+  return decoratedFunc;
+}
+```
+- функция memoize - это decorator. targerFunc - исходная функция для мемоизации, значит что если ее аргументы не изменились, то запускать снова targerFunc не надо. decoratedFunc - результат memoize, ее логика состоит в том, чтобы сохранять аргументы вызова и проверять, не изменились ли они. checkForEquality - вспомогательная функция для проверки изменения аргументов в decoratedFunc
+- HOS - богатый, в static свойствах и методах лежит много информации (включая информацию связанную с мемоизацией из пердыдущего пункта (наш термин/термин reselect): memoize/memoize, resultFunc/targetFunc, memoResult/lastResult...)
 ________________________________________________________________________________________________________
 
